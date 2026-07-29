@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <title>Login</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    body { font-family: Arial, Helvetica, sans-serif; max-width:600px; margin:40px auto; padding:0 16px; }
+    h1 { text-align:center; }
+    form { display:flex; flex-direction:column; gap:10px; }
+    input { padding:8px; font-size:16px; }
+    button { padding:10px; font-size:16px; cursor:pointer; }
+    .info { color: #555; }
+    .error { color: #b30000; }
+  </style>
+</head>
+<body>
+  <h1>Login</h1>
+  <div id="message" class="info">Faça o login com seu e-mail e senha.</div>
+
+  <form id="loginForm">
+    <input type="email" id="email" placeholder="E-mail" required />
+    <input type="password" id="password" placeholder="Senha" required />
+    <div>
+      <button type="submit">Entrar</button>
+      <button type="button" id="goRegister">Ir para Cadastro</button>
+    </div>
+    <div id="feedback"></div>
+  </form>
+
+  <script>
+    async function hashSHA256(text) {
+      const enc = new TextEncoder();
+      const data = enc.encode(text);
+      const buf = await crypto.subtle.digest('SHA-256', data);
+      return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    function getUsers() {
+      try { return JSON.parse(localStorage.getItem('users') || 'null'); } catch(e){ return null; }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const users = getUsers();
+      const feedback = document.getElementById('feedback');
+
+      if (!users || users.length === 0) {
+        // If no registrations exist, do not allow access to login — redirect to cadastro
+        feedback.innerHTML = '<p class="error">Nenhum cadastro encontrado. Você será redirecionado para a página de cadastro.</p>';
+        setTimeout(() => location.href = 'register.html', 1200);
+        return;
+      }
+
+      document.getElementById('goRegister').addEventListener('click', () => {
+        location.href = 'register.html';
+      });
+
+      document.getElementById('loginForm').addEventListener('submit', async (ev) => {
+        ev.preventDefault();
+        feedback.textContent = '';
+        const email = document.getElementById('email').value.trim().toLowerCase();
+        const password = document.getElementById('password').value;
+
+        const users = getUsers();
+        if (!users) { feedback.innerHTML = '<p class="error">Erro: nenhum cadastro encontrado.</p>'; return; }
+
+        const user = users.find(u => u.email === email);
+        if (!user) { feedback.innerHTML = '<p class="error">E-mail não cadastrado.</p>'; return; }
+
+        const hash = await hashSHA256(password);
+        if (hash !== user.pwdHash) { feedback.innerHTML = '<p class="error">Senha inválida.</p>'; return; }
+
+        // Login OK — set session (simple)
+        localStorage.setItem('currentUser', JSON.stringify({ email: user.email, name: user.name }));
+        location.href = 'home.html';
+      });
+    });
+  </script>
+</body>
+</html>
