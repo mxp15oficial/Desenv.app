@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - MXP$15</title>
+    <style>
+        body {
+            background-color: #000000;
+            color: #ffffff;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .login-box {
+            width: 100%;
+            max-width: 340px;
+            padding: 30px 20px;
+            background: #111111;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.7);
+            text-align: center;
+        }
+        .logo-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 25px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .logo-container img {
+            width: 24px;
+            height: 24px;
+            object-fit: contain;
+        }
+        h1 {
+            font-size: 20px;
+            letter-spacing: 1px;
+            margin-bottom: 25px;
+        }
+        input {
+            width: 100%;
+            padding: 14px;
+            background: #1a1a1a;
+            border: 1px solid #2a2a2a;
+            border-radius: 6px;
+            color: #ffffff;
+            box-sizing: border-box;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+        input::placeholder {
+            color: #777777;
+        }
+        .btn-entrar {
+            width: 100%;
+            padding: 14px;
+            background-color: #007bff;
+            border: none;
+            border-radius: 6px;
+            color: white;
+            font-size: 15px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-bottom: 12px;
+        }
+        .btn-entrar:hover {
+            background-color: #0056b3;
+        }
+        .btn-criar {
+            width: 100%;
+            padding: 14px;
+            background-color: #222222;
+            border: none;
+            border-radius: 6px;
+            color: #ffffff;
+            font-size: 15px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .btn-criar:hover {
+            background-color: #333333;
+        }
+    </style>
+</head>
+<body>
+
+<div class="login-box">
+    <div class="logo-container">
+        <img src="4085.jpg" alt="Logo"> Logo
+    </div>
+    <h1>ENTRAR</h1>
+    
+    <form id="formLogin">
+        <input type="email" id="email" placeholder="E-mail" required>
+        <input type="password" id="senha" placeholder="Senha" required>
+        <button type="submit" class="btn-entrar">ENTRAR</button>
+    </form>
+    
+    <button type="button" class="btn-criar" onclick="window.location.href='registro.html'">CRIAR CONTA</button>
+</div>
+
+<!-- Biblioteca do Supabase -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+    const supabaseUrl = 'https://guavczqfnqkshhgpyccs.supabase.co';
+    const supabaseKey = 'sb_publishable_1qUbWglTgDfCV4MIDT7qWQ_jetIG_ht';
+    
+    if (typeof supabase !== 'undefined') {
+        const client = supabase.createClient(supabaseUrl, supabaseKey);
+
+        document.getElementById("formLogin").addEventListener("submit", async function(e){
+            e.preventDefault();
+            
+            const email = document.getElementById("email").value.trim();
+            const senha = document.getElementById("senha").value;
+
+            try {
+                const { data, error } = await client.auth.signInWithPassword({ 
+                    email: email, 
+                    password: senha 
+                });
+
+                if (error) throw error;
+
+                localStorage.setItem("usuarioLogado", "true");
+                alert("Login realizado com sucesso!");
+                window.location.href = "home.html";
+                
+            } catch(err) {
+                alert("Erro ao entrar: " + err.message);
+            }
+        });
+    }
+</script>
+
+</body>
+</html>
